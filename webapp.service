@@ -1,0 +1,20 @@
+[Unit]
+Description=Node Web Application
+After=network.target
+
+[Service]
+Type=simple
+User=csye6225
+Group=csye6225
+WorkingDirectory=/opt/webapp
+ExecStart=/usr/bin/node /opt/webapp/index.js
+EnvironmentFile =/opt/webapp/.env
+Restart=on-failure
+RestartSec=10
+Environment=PORT=3000
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=webapp
+
+[Install]
+WantedBy=multi-user.target
