@@ -1,0 +1,32 @@
+name: Packer CI
+
+env:
+    packer_ci: ${{ secrets.PACKER_CI }}
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  packer_checks:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install Packer
+        run: |
+          curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+          sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+          sudo apt-get update && sudo apt-get install packer
+
+      - name: Check Packer Template Format
+        run: |
+          packer fmt -check -diff .
+          if [ $? -ne 0 ]; then
+            echo "Packer template needs formatting."
+            exit 1
+          fi
+
+      - name: Validate the Packer template
+        run: packer validate -var 'some_variable=packer_ci' .
